@@ -35,9 +35,9 @@
 (global-set-key [(f11)] 'call-last-kbd-macro) ;one button calling of kbd macros
 ;; F12 tries to vc commit
 ;; Tries to run either appropriate version control commit commanddarcsum-no-duplicate-buffer or hg-commit start, i.e. run darcs or mercurial. Raise error message if neither one works.
-(global-set-key [(f12)] (lambda () (git-status (buffer-file-name (current-buffer)))))
-(global-set-key [(control f12)] 'git-push-ff-only)
-(global-set-key [(M f12)] 'git-branch)
+(global-set-key [(f12)] 'magit-status)
+(global-set-key [(control f12)] 'magit-push)
+(global-set-key [(M f12)] 'magit-branch)
 
 ;;******** Helm ********
 (global-set-key "\M-y" 'helm-show-kill-ring)
