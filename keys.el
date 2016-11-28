@@ -41,6 +41,7 @@
 
 ;;******** Helm ********
 (global-set-key "\M-y" 'helm-show-kill-ring)
+(global-set-key "\M-x" 'helm-M-x)
 
 ;;******** projectile ********
 (global-set-key [(control tab)] 'helm-projectile)

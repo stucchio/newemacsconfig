@@ -48,7 +48,7 @@
 (require 'yaml-mode)
 (add-to-list 'auto-mode-alist '("\\.yml$" . yaml-mode))
 ;******** bookmarking ********
-(load "bm")
+(require 'bm)
 ;;******** rainbow-mode ********
 ;; http://julien.danjou.info/rainbow-mode.html
 (require 'rainbow-mode)
@@ -127,10 +127,7 @@
 (add-to-list 'auto-mode-alist '("\\.js$" . javascript-mode))
 
 ;******** Markdown mode ********
-(autoload 'markdown-mode "markdown-mode.el"
-   "Major mode for editing Markdown files" t)
-(setq auto-mode-alist
-   (cons '("\\.md" . markdown-mode) auto-mode-alist))
+
 
 ;;******** Finally, set key bindings ********
 (load-file (concat emacs-root "keys.el"))
@@ -146,8 +143,29 @@
 
 ;;******** Helm-projectile configs ********
 (custom-set-variables
- '(helm-projectile-sources-list (append helm-projectile-sources-list helm-for-files-preferred-list))
- )
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(helm-projectile-sources-list
+   (append helm-projectile-sources-list helm-for-files-preferred-list))
+ '(org-agenda-files
+   (\`
+    ((\,
+      (concat org-mode-root-folder "papers.org"))
+     (\,
+      (concat org-mode-root-folder "tasks.org")))))
+ '(org-export-backends (markdown ascii html icalendar latex odt))
+ '(org-startup-truncated nil)
+ '(package-selected-packages
+   (quote
+    (bm magit magit-find-file haskell-mode helm helm-ls-git helm-projectile projectile org-plus-contrib python)))
+ '(projectile-globally-ignored-file-suffixes
+   (append projectile-globally-ignored-file-suffixes
+           (quote
+            ("~"))))
+ '(sentence-end-double-space nil)
+ '(uniquify-buffer-name-style (quote forward) nil (uniquify)))
 
 ;;******** Activate org mode, load files ********
 (find-file (concat emacs-root "init.el"))
@@ -174,24 +192,7 @@
 (find-file (concat org-mode-root-folder "papers.org"))
 
 ;;******** Custom variables ********
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(org-agenda-files
-   (\`
-    ((\,
-      (concat org-mode-root-folder "papers.org"))
-     (\,
-      (concat org-mode-root-folder "tasks.org")))))
- '(org-export-backends (markdown ascii html icalendar latex odt))
- '(org-startup-truncated nil)
- '(package-selected-packages
-   (quote
-    (magit magit-find-file haskell-mode helm helm-ls-git helm-projectile projectile org-plus-contrib python)))
- '(sentence-end-double-space nil)
- '(uniquify-buffer-name-style (quote forward) nil (uniquify)))
+
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
