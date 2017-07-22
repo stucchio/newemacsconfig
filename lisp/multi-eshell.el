@@ -37,7 +37,7 @@
   "Simple support for having multiple shells open."
   :group 'languages)
 
-(defcustom multi-eshell-shell-function '(shell)
+(defcustom multi-eshell-shell-function '(eshell)
   "Command called to create shell"
   :group 'multi-eshell)
 
@@ -138,6 +138,7 @@
 	(if (eq (get-buffer multi-eshell-name) nil) ;If a
 	    (progn
 	      (multi-eshell-function)
+              (rename-buffer new-buff-name)
 	      ;(process-send-string (get-buffer-process new-buff-name) (concat "cd " localdir "\n"))
 	      (ring-insert multi-eshell-ring (current-buffer) )
 	      (setq multi-eshell-index (+ multi-eshell-index 1))
@@ -145,15 +146,9 @@
 	  (progn
 	    (interactive)
 	    (multi-eshell-function)
-	    (rename-buffer tempname)
-	    (multi-eshell-function)
-	    (rename-buffer new-buff-name )
-	    (switch-to-buffer tempname)
-	    (rename-buffer multi-eshell-name)
-	(switch-to-buffer new-buff-name)
-	;(process-send-string (get-buffer-process new-buff-name) (concat "cd " localdir "\n"))
-	(ring-insert multi-eshell-ring (current-buffer) )
-	(setq multi-eshell-index (+ multi-eshell-index 1))
+	    (rename-buffer new-buff-name)
+            (ring-insert multi-eshell-ring (current-buffer) )
+            (setq multi-eshell-index (+ multi-eshell-index 1))
 	)
 	  )
 	)
@@ -167,7 +162,7 @@
 	(tempname (generate-new-buffer-name "*tempshell*") ) )
     (cond ((bufferp buffer-of-name) ;If the buffer exists, switch to it (assume it is a shell)
 	   (switch-to-buffer name))
-	  ( (bufferp (get-buffer multi-eshell-name))
+	  ((bufferp (get-buffer multi-eshell-name))
 	  (progn
 	    (multi-eshell-function)
 	    (rename-buffer tempname)
@@ -187,4 +182,3 @@
   )
 
 (provide 'multi-eshell)
-
