@@ -13,6 +13,7 @@
 		       (concat (getenv "HOME") "/dotemacs/")
 		     "c:/Users/stucc/AppData/Roaming/.emacs.d/")
   "My home directory, the root of my personal emacs load-path.")
+(defvar dropbox "c:/Users/stucc/Dropbox/")
 
 
 (require 'package)
@@ -36,6 +37,8 @@
 (require 'hl-sexp)
 (add-hook 'emacs-lisp-mode-hook 'hl-sexp-mode)
 (add-hook 'clojure-mode-hook 'hl-sexp-mode)
+;;******** bell ********
+(setq visible-bell t)
 
 ;;******** Show parenthesis ********
 (show-paren-mode t)
@@ -54,9 +57,12 @@
 (require 'rainbow-mode)
 
 ;;******** python stuff ********
-(setq python-shell-completed-native nil)
-(setq python-shell-interpreter "ipython"
-       python-shell-interpreter-args "-i")
+;;(setq python-shell-completed-native nil)
+;;(setq python-shell-interpreter "ipython"
+;;      python-shell-interpreter-args "-i")
+(elpy-enable)
+(setq python-shell-completion-native-enable nil)
+(elpy-use-ipython)
 
 ;;********* Smooth scrolling *********
 (require 'smooth-scrolling)
@@ -140,6 +146,9 @@
 (require 'projectile)
 (projectile-global-mode)
 (require 'helm-projectile)
+(add-to-list 'projectile-globally-ignored-directories "build")
+(add-to-list 'projectile-globally-ignored-directories "pyenv")
+(add-to-list 'projectile-globally-ignored-file-suffixes ".pyc")
 
 ;;******** Helm-projectile configs ********
 (custom-set-variables
@@ -155,11 +164,11 @@
       (concat org-mode-root-folder "papers.org"))
      (\,
       (concat org-mode-root-folder "tasks.org")))))
- '(org-export-backends (markdown ascii html icalendar latex odt))
+ '(org-export-backends nil)
  '(org-startup-truncated nil)
  '(package-selected-packages
    (quote
-    (bm magit magit-find-file haskell-mode helm helm-ls-git helm-projectile projectile org-plus-contrib python)))
+    (lua-mode scala-mode elpy paredit markdown-mode bm magit magit-find-file haskell-mode helm helm-ls-git helm-projectile projectile org-plus-contrib python)))
  '(projectile-globally-ignored-file-suffixes
    (append projectile-globally-ignored-file-suffixes
            (quote
@@ -167,9 +176,20 @@
  '(sentence-end-double-space nil)
  '(uniquify-buffer-name-style (quote forward) nil (uniquify)))
 
-;;******** Activate org mode, load files ********
+;;******** Paredit ********
+(require 'paredit)
+(dolist (hook '(emacs-lisp-mode-hook
+                lisp-mode-hook
+                slime-repl-mode-hook
+		clojure-mode-hook))
+  (add-hook hook #'(lambda nil (paredit-mode 1))))
+
 (find-file (concat emacs-root "init.el"))
-(defvar org-mode-root-folder "c:/Users/stucc/Dropbox/org/")
+(require 'markdown-mode)
+
+
+;;******** Activate org mode, load files ********
+(defvar org-mode-root-folder (concat dropbox "org/"))
 (require 'org)
 (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
 (setq org-replace-disputed-keys t)
@@ -199,3 +219,4 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(org-done ((t (:foreground "PaleGreen" :weight normal :strike-through t)))))
+(put 'scroll-left 'disabled nil)
