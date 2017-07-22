@@ -122,6 +122,9 @@
 ;; C++ mode
 (add-hook 'c++-mode-hook (lambda () (local-set-key "\C-cm" #'expand-member-functions)))
 
+;; Scala mode
+(add-hook 'scala-mode-hook (lambda () (define-key scala-mode-map [(control tab)] 'helm-projectile)))
+
 ;; Org mode
 (add-hook 'org-mode-hook (lambda ()
 			   (progn
@@ -136,6 +139,7 @@
                              (define-key org-mode-map [(shift right)] 'windmove-right)
                              (define-key org-mode-map [(shift up)] 'windmove-up)
                              (define-key org-mode-map [(shift down)] 'windmove-down)
+                             (define-key org-mode-map "\M-s" 'org-tags-view)
 			     )
 			   )
 	  )
