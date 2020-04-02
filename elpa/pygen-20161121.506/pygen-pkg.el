@@ -1,0 +1,2 @@
+;;; -*- no-byte-compile: t -*-
+(define-package "pygen" "20161121.506" "Python code generation using Elpy and Python-mode." '((elpy "1.12.0") (python-mode "6.2.2") (dash "2.13.0")) :commit "9019ff44ba49d7295b1476530feab91fdadb084b" :keywords '("python" "code generation") :authors '(("Jack Crawley <http://www.github.com/jackcrawley>")) :maintainer '("Jack Crawley <http://www.github.com/jackcrawley>") :url "https://github.com/JackCrawley/pygen/")
