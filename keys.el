@@ -1,22 +1,24 @@
 ;Use f1 for help of various sorts
 (global-set-key [(control f1)] 'apropos)
 (global-set-key [(M f1)] 'describe-function)
+(global-set-key [(f1)] 'crux-create-scratch-buffer)
 ; f2 for buffer revert
 (global-set-key [(f2)] 'revert-buffer)
 ;Makes f4 key go back in buffer list, C-f4 kills buffer
 (global-set-key [(f4)] `projectile-kill-buffers)
 (global-set-key [(control f4)] (lambda () (interactive) (kill-buffer (current-buffer))))
-;;F5 for org-mode stuff
-(global-set-key [(f5)] 'org-todo-list)
-(global-set-key [(control f5)] 'org-tags-view)
-(global-set-key [(M f5)] `org-capture)
+
+;;F5 is unboundfor org-mode stuff
 
 ;;F6 controls the shell
 (global-set-key [(f6)] 'multi-eshell-switch)
 (global-set-key [(control f6)] 'multi-eshell)
 (global-set-key [(M f6)] 'multi-eshell-go-back)
-;;F7 turns on an interpreter reply, if one is available
-(global-set-key [(f7)] 'turn-on-appropriate-repl)
+
+;;Registers
+(global-set-key [(f7)] 'helm-register)
+(global-set-key [(control f7)] 'copy-to-register)
+(global-set-key [(M f7)] 'window-configuration-to-register)
 
 ;; F8 controls bookmarks
 (global-set-key [(control f8)] 'bm-toggle)
@@ -25,10 +27,10 @@
 (global-set-key [(f9)] 'eval-last-sexp)
 (global-set-key [(control f9)] 'fc-eval-and-replace)
 (global-set-key [(M f9)] 'execute-extended-command)
-;; F10 controls window-config-ring
-(global-set-key [(control f10)] 'persp-kill)
-;;(global-set-key [(M f10)] 'window-config-ring-remove)
-(global-set-key [(f10)] 'persp-switch)
+;;F10 org-mode
+(global-set-key [(f10)] `org-capture)
+(global-set-key [(control f10)] 'org-tags-view)
+(global-set-key [(M f10)] 'helm-org-rifle-org-directory)
 ;; F11 controls keyboard macros
 (global-set-key [(control f11)] 'start-or-end-kbd-macro) ;One-button recording of kbd macros
 (global-set-key [(control M f11)] 'name-last-kbd-macro) ;One button naming of last kbd macro
@@ -39,14 +41,15 @@
 (global-set-key [(control f12)] 'magit-push)
 (global-set-key [(M f12)] 'magit-branch)
 
+(global-set-key "\C-a" 'crux-move-beginning-of-line)
+
 ;;******** Helm ********
 (global-set-key "\M-y" 'helm-show-kill-ring)
 (global-set-key "\M-x" 'helm-M-x)
 
 ;;******** projectile ********
 (global-set-key [(control tab)] 'helm-projectile)
-(global-set-key "\M-s" 'projectile-multi-occur)
-(global-set-key "\C-\M-s" 'projectile-replace)
+(global-set-key "\C-l" 'wg-switch-to-workgroup)
 (global-set-key "\C-\M-w" 'delete-region)
 
 ;;******** wrap-region stuff ********
@@ -54,10 +57,12 @@
 (global-set-key "{" (wrap-region-with-function "{" "}"))
 (global-set-key "[" (wrap-region-with-function "[" "]"))
 
-
-
-;;Bind M-j to imenu, for quick navigation.
-(global-set-key "\M-j" 'imenu)
+;; **************** Navigation ****************
+(global-set-key "\M-gg" 'avy-goto-line)
+(global-set-key "\M-g\M-g" 'avy-goto-line)
+(global-set-key "\C-\M-s" 'avy-goto-char-timer)
+(global-set-key "\C-o" 'ace-window)
+(global-set-key "\M-o" 'ace-delete-window)
 
 ;;
 (global-set-key [(M right)] 'forward-sexp)
@@ -65,8 +70,7 @@
 (global-set-key [(M up)] 'backward-up-list)
 
 ;Zapping
-(global-set-key "\M-z" 'zap-up-to-char)
-(global-set-key "\C-z" 'backward-zap-up-to-char)
+(global-set-key "\M-z" 'avy-zap-up-to-char-custom)
 
 ;Eval
 (global-set-key "\C-x\C-e" 'fc-eval-and-replace)
@@ -108,22 +112,18 @@
 	  )
 
 
-;; Darcsum-mode
-(add-hook 'darcsum-mode-hook
-	  '(lambda ()
-	     (define-key darcsum-mode-map [(control f4)] '(lambda () (interactive)
-								     (progn
-								       (kill-buffer (get-buffer-create "*darcs comment*"))
-								       (kill-buffer (current-buffer))
-								       )))))
-(add-hook 'darcsum-comment-mode-hook
-	  '(lambda () (define-key darcsum-comment-mode-map [(control f4)] '(lambda () (interactive) (kill-buffer (current-buffer))))))
-
 ;; C++ mode
 (add-hook 'c++-mode-hook (lambda () (local-set-key "\C-cm" #'expand-member-functions)))
 
 ;; Scala mode
 (add-hook 'scala-mode-hook (lambda () (define-key scala-mode-map [(control tab)] 'helm-projectile)))
+
+;; Markdown mode
+(add-hook 'markdown-mode-hook (lambda ()
+                                (progn
+                                  (define-key markdown-mode-map "\C-xo" 'markdown-follow-thing-at-point)
+                                  (define-key markdown-mode-map "\C-cl" 'markdown-insert-link)
+                                  )))
 
 ;; Org mode
 (add-hook 'org-mode-hook (lambda ()
@@ -135,11 +135,15 @@
                              (define-key org-mode-map [(control tab)] 'helm-projectile) ;; override org mode's map
                              (define-key org-mode-map "\C-c\C-i" 'stucchio-org-get-for-papers)
                              (define-key org-mode-map "\C-c\M-i" 'stucchio-org-move-to-papers)
-                             (define-key org-mode-map [(shift left)] 'windmove-left)
-                             (define-key org-mode-map [(shift right)] 'windmove-right)
-                             (define-key org-mode-map [(shift up)] 'windmove-up)
-                             (define-key org-mode-map [(shift down)] 'windmove-down)
                              (define-key org-mode-map "\M-s" 'org-tags-view)
 			     )
 			   )
 	  )
+
+;; Python mode
+(add-hook 'python-mode-hook (lambda ()
+                              (progn
+                                (define-key elpy-mode-map "\M-/" 'elpy-company-backend)
+                                (define-key elpy-mode-map "\M-j" 'elpy-goto-definition)
+                                (define-key elpy-mode-map (kbd "C-/") 'comment-or-uncomment-region)
+                                )))

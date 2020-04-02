@@ -1,4 +1,3 @@
-
 ;; Added by Package.el.  This must come before configurations of
 ;; installed packages.  Don't delete this line.  If you don't want it,
 ;; just comment it out by adding a semicolon to the start of the line.
@@ -11,10 +10,10 @@
 			   (eq system-type 'darwin)
 			   )
 		       (concat (getenv "HOME") "/dotemacs/")
-		     "c:/Users/stucc/AppData/Roaming/.emacs.d/")
+		     "c:/Users/stucc/Dropbox/.emacs.d/")
   "My home directory, the root of my personal emacs load-path.")
 (defvar dropbox "c:/Users/stucc/Dropbox/")
-
+(defvar dropbox-linux "/mnt/c/Users/stucc/Dropbox/")
 
 (require 'package)
 (add-to-list 'package-archives '("marmalade" . "https://marmalade-repo.org/packages/") t)
@@ -39,6 +38,8 @@
 (add-hook 'clojure-mode-hook 'hl-sexp-mode)
 ;;******** bell ********
 (setq visible-bell t)
+;;******** Hide startup screen ********
+(setq inhibit-startup-screen t)
 
 ;;******** Show parenthesis ********
 (show-paren-mode t)
@@ -58,11 +59,17 @@
 
 ;;******** python stuff ********
 ;;(setq python-shell-completed-native nil)
-;;(setq python-shell-interpreter "ipython"
-;;      python-shell-interpreter-args "-i")
 (elpy-enable)
-(setq python-shell-completion-native-enable nil)
-(elpy-use-ipython)
+(setq python-shell-interpreter "ipython")
+(setq python-shell-interpreter-args "-i --simple-prompt")
+(when (require 'flycheck nil t)
+  (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+  (add-hook 'elpy-mode-hook 'flycheck-mode))
+(require 'pygen)
+(add-hook 'python-mode-hook 'pygen-mode)
+
+;;(setq python-shell-completion-native-enable nil)
+;;(elpy-use-ipython)
 
 ;;********* Smooth scrolling *********
 (require 'smooth-scrolling)
@@ -76,6 +83,9 @@
 ;;******** Save list of files recently opened
 (require 'recentf)
 (recentf-mode 1)
+
+;;******** crux ********
+(require 'crux)
 
 ;;******** utility function ********
 (load-file (concat emacs-root "my_lisp/misc.el"))
@@ -133,7 +143,20 @@
 (add-to-list 'auto-mode-alist '("\\.js$" . javascript-mode))
 
 ;******** Markdown mode ********
+(add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
 
+;;******** workgroups for windows ********
+;; https://github.com/tlh/workgroups.el
+(require 'workgroups)
+(workgroups-mode)
+(wg-toggle-morph) ;; Don't want stupid special effects
+(setq wg-file "c:/Users/stucc/Dropbox/.emacs.d/workgroups.el")
+(add-hook 'kill-emacs-hook (lambda () (progn
+                                        (wg-update-all-workgroups)
+                                        (setq current-prefix-arg '(4))
+                                        (wg-save wg-file)
+                                        )))
+(desktop-save-mode 1) ;; Not part of workgroups, but lets us save our open buffers too
 
 ;;******** Finally, set key bindings ********
 (load-file (concat emacs-root "keys.el"))
@@ -150,25 +173,33 @@
 (add-to-list 'projectile-globally-ignored-directories "pyenv")
 (add-to-list 'projectile-globally-ignored-file-suffixes ".pyc")
 
-;;******** Helm-projectile configs ********
+;;******** eyebrowse ********
+;; Workspace manager
+;;(eyebrowse-mode t)
+;;(setq eyebrowse-mode-line-separator " " eyebrowse-new-workspace t)
+;;(dotimes (number 9) (eyebrowse-switch-to-window-config (+ number 1)))
+;;(eyebrowse-switch-to-window-config 1)
+
+
+;;******** Ace-isearch ********
+(require 'ace-isearch)
+(global-ace-isearch-mode +1)
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(ace-isearch-function (quote avy-goto-char))
+ '(ace-isearch-input-length 3)
+ '(ace-isearch-jump-delay 5)
+ '(ace-isearch-use-jump (quote printing-char))
  '(helm-projectile-sources-list
    (append helm-projectile-sources-list helm-for-files-preferred-list))
- '(org-agenda-files
-   (\`
-    ((\,
-      (concat org-mode-root-folder "papers.org"))
-     (\,
-      (concat org-mode-root-folder "tasks.org")))))
  '(org-export-backends nil)
  '(org-startup-truncated nil)
  '(package-selected-packages
    (quote
-    (lua-mode scala-mode elpy paredit markdown-mode bm magit magit-find-file haskell-mode helm helm-ls-git helm-projectile projectile org-plus-contrib python)))
+    (cdlatex powershell helm-org-rifle use-package pygen avy-flycheck flycheck crux workgroups helm-swoop ace-isearch ace-window ace-jump-mode ace-mc avy-zap avy org-ref eyebrowse paredit-everywhere lua-mode scala-mode elpy paredit markdown-mode bm magit magit-find-file haskell-mode helm helm-ls-git helm-projectile projectile org-plus-contrib python)))
  '(projectile-globally-ignored-file-suffixes
    (append projectile-globally-ignored-file-suffixes
            (quote
@@ -187,21 +218,24 @@
 (find-file (concat emacs-root "init.el"))
 (require 'markdown-mode)
 
+;;******** Activate org mode, load files *******
 
-;;******** Activate org mode, load files ********
 (defvar org-mode-root-folder (concat dropbox "org/"))
+(setq org-directory org-mode-root-folder)
 (require 'org)
+
 (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
 (setq org-replace-disputed-keys t)
 (global-set-key "\C-ca" 'org-agenda)
 (setq org-tab-follows-link t)
-(setq org-default-notes-file (concat org-mode-root-folder "notes/capture.org"))
+(setq org-default-notes-file (concat org-directory "notes.org"))
 (setq org-capture-templates
-      '(("t" "Todo" entry (file+headline (concat org-mode-root-folder "tasks.org") "Uncategorized") "* TODO %?\n  %i\n  %a")
-        ("i" "Idea" entry (file+datetree (concat org-mode-root-folder "ideas.org") "Ideas") "* %?\nEntered on %U\n  %i\n  %a")
-        ("r" "Toread" entry (file+headline (concat org-mode-root-folder "papers.org") "Uncategorized") "* READ %?\nEntered on %U\n  %i\n  %a")
-        )
+      `(("t" "Todo" entry (file+datetree ,(concat org-directory "tasks.org") )
+         "* TODO %?\n  %i\n  %a")
+        ("n" "Notes" entry (file+datetree ,(concat org-directory "notes.org") )
+         "* %?\nEntered on %U\n  %i\n  %a"))
       )
+
 (setq org-log-done 'time)
 (setq org-fontify-done-headline t)
 
@@ -209,14 +243,52 @@
 (setq org-file-apps (cons '("\\.ps\\'" . default) org-file-apps))
 
 (org-agenda nil "t")
-(find-file (concat org-mode-root-folder "papers.org"))
+(find-file (concat org-directory "papers.org"))
+(find-file (concat org-directory "notes.org"))
+(setq org-agenda-files
+      `(,(concat org-directory "notes.org" ) ,(concat org-directory "tasks.org"))
+      )
+(setq org-refile-targets '((nil :maxlevel . 9)
+                           (org-agenda-files :maxlevel . 9)))
+(setq org-outline-path-complete-in-steps nil)         ; Refile in a single go
+(setq org-refile-use-outline-path t)                  ; Show full paths for refiling
 
-;;******** Custom variables ********
+;;******** mu4e ********
+;; (add-path "site-lisp/mu4e") ;;mu4e email client
+;; (require 'mu4e)
+;; (setq
+;;  mu4e-maildir       (concat dropbox "mail") ;; top-level Maildir
+;;   mu4e-sent-folder   "/Sent"       ;; folder for sent messages
+;;   mu4e-drafts-folder "/Drafts"     ;; unfinished messages
+;;   mu4e-trash-folder  "/Trash"      ;; trashed messages
+;;   mu4e-refile-folder "/All Mail"
+;;   mu4e-get-mail-command (concat "wsl offlineimap -c " (concat dropbox-linux "mail/offlineimaprc"))
+;;   mu4e-update-interval 180
+;;   mu4e-user-mail-address-list '("hi@chrisstucchio.com" "stucchio@gmail.com" "acctsadmin@chrisstucchio.com" "stucchio@pm.me" "stucchio@protonmail.ch")
+;;   mu4e-mu-binary (concat dropbox "mail/mu.bat")
+;;   mu4e-compose-signature-auto-include nil
+;;   mu4e-windows-compatible-filenames t)
 
+;; (require 'starttls)
+;; (require 'smtpmail)
+
+;; (setq message-send-mail-function 'smtpmail-send-it
+;;    starttls-use-gnutls t
+;;    smtpmail-starttls-credentials '(("127.0.0.1" 1025 nil nil))
+;;    smtpmail-auth-credentials '(("127.0.0.1" 1025 "hi@chrisstucchio.com" "EI5FVwhTjYGRCykInx1DUw"))
+;;    smtpmail-default-smtp-server "127.0.0.1"
+;;    smtpmail-smtp-server "127.0.0.1"
+;;    smtpmail-smtp-service 1025
+;;    smtpmail-auth-credentials (concat dropbox "mail/authinfo")
+;;    )
+
+;;******** custom variables ********
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(org-done ((t (:foreground "PaleGreen" :weight normal :strike-through t)))))
+ )
 (put 'scroll-left 'disabled nil)
+
+(wg-load wg-file) ;; Load workgroups last after everything else is done
