@@ -199,7 +199,7 @@
  '(org-startup-truncated nil)
  '(package-selected-packages
    (quote
-    (yaml-mode cdlatex powershell helm-org-rifle use-package pygen avy-flycheck flycheck crux workgroups helm-swoop ace-isearch ace-window ace-jump-mode ace-mc avy-zap avy org-ref eyebrowse paredit-everywhere lua-mode scala-mode elpy paredit markdown-mode bm magit magit-find-file haskell-mode helm helm-ls-git helm-projectile projectile org-plus-contrib python)))
+    (ein edit-server yaml-mode cdlatex powershell helm-org-rifle use-package pygen avy-flycheck flycheck crux workgroups helm-swoop ace-isearch ace-window ace-jump-mode ace-mc avy-zap avy org-ref eyebrowse paredit-everywhere lua-mode scala-mode elpy paredit markdown-mode bm magit magit-find-file haskell-mode helm helm-ls-git helm-projectile projectile org-plus-contrib python)))
  '(projectile-globally-ignored-file-suffixes
    (append projectile-globally-ignored-file-suffixes
            (quote
@@ -292,3 +292,6 @@
 (put 'scroll-left 'disabled nil)
 
 (wg-load wg-file) ;; Load workgroups last after everything else is done
+
+(require 'edit-server)
+(edit-server-start)
