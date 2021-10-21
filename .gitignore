@@ -3,4 +3,6 @@
 /projectile.cache
 /projectile-bookmarks.eld
 /recentf
+recentf
 *.elc
+*.pyc

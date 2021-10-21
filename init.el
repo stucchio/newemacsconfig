@@ -59,14 +59,11 @@
 
 ;;******** python stuff ********
 ;;(setq python-shell-completed-native nil)
-(elpy-enable)
 (setq python-shell-interpreter "ipython")
 (setq python-shell-interpreter-args "-i --simple-prompt")
-(when (require 'flycheck nil t)
-  (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
-  (add-hook 'elpy-mode-hook 'flycheck-mode))
 (require 'pygen)
 (add-hook 'python-mode-hook 'pygen-mode)
+
 
 ;;(setq python-shell-completion-native-enable nil)
 ;;(elpy-use-ipython)
@@ -133,6 +130,7 @@
 (color-theme-billw)
 ;(set-face-background 'hl-line "#060606")
 (set-face-background 'hl-sexp-face "#250606")
+(set-face-attribute 'default nil :height 120)
 
 (transient-mark-mode 1)
 (add-hook 'write-file-functions 'delete-trailing-whitespace)
@@ -164,14 +162,36 @@
 ;;******** Helm ********
 (require 'helm-config)
 (helm-mode)
+(setq helm-swoop-pre-input-function
+      (lambda () ""))
 
-;;******** projectile ********
-(require 'projectile)
+(with-eval-after-load 'helm-projectile
+  (defvar helm-source-file-not-found
+    (helm-build-dummy-source
+        "Create file"
+      :action (lambda (cand) (find-file cand))))
+
+
+  (add-to-list 'helm-for-files-preferred-list helm-source-file-not-found t)
+
+  ;;******** projectile ********
+  (require 'projectile))
 (projectile-global-mode)
 (require 'helm-projectile)
 (add-to-list 'projectile-globally-ignored-directories "build")
 (add-to-list 'projectile-globally-ignored-directories "pyenv")
 (add-to-list 'projectile-globally-ignored-file-suffixes ".pyc")
+
+(with-eval-after-load 'helm-projectile
+  (defvar helm-source-file-not-found
+    (helm-build-dummy-source
+        "Create file"
+      :action (lambda (cand) (find-file cand))))
+  (progn
+    (add-to-list 'helm-projectile-sources-list helm-source-file-not-found t)
+    (setq helm-projectile-sources-list (delete 'helm-source-locate helm-projectile-sources-list))
+    )
+  )
 
 ;;******** eyebrowse ********
 ;; Workspace manager
@@ -199,13 +219,15 @@
  '(org-startup-truncated nil)
  '(package-selected-packages
    (quote
-    (ein edit-server yaml-mode cdlatex powershell helm-org-rifle use-package pygen avy-flycheck flycheck crux workgroups helm-swoop ace-isearch ace-window ace-jump-mode ace-mc avy-zap avy org-ref eyebrowse paredit-everywhere lua-mode scala-mode elpy paredit markdown-mode bm magit magit-find-file haskell-mode helm helm-ls-git helm-projectile projectile org-plus-contrib python)))
+    (typescript-mode atomic-chrome ein edit-server yaml-mode cdlatex powershell helm-org-rifle use-package pygen avy-flycheck flycheck crux workgroups helm-swoop ace-isearch ace-window ace-jump-mode ace-mc avy-zap avy org-ref eyebrowse paredit-everywhere lua-mode scala-mode paredit markdown-mode bm magit magit-find-file haskell-mode helm helm-ls-git helm-projectile projectile org-plus-contrib python)))
  '(projectile-globally-ignored-file-suffixes
    (append projectile-globally-ignored-file-suffixes
            (quote
             ("~"))))
  '(sentence-end-double-space nil)
- '(uniquify-buffer-name-style (quote forward) nil (uniquify)))
+ '(uniquify-buffer-name-style (quote forward) nil (uniquify))
+ '(helm-locate-command "powershell.exe -command \"Get-ChildItem -Path . %s -Include *%s* -Recurse | Select-Object -first 10 Name \"")
+ )
 
 ;;******** Paredit ********
 (require 'paredit)
@@ -295,3 +317,4 @@
 
 (require 'edit-server)
 (edit-server-start)
+(load-file (concat emacs-root "my_lisp/edit-server-custom.el"))

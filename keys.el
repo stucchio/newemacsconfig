@@ -5,7 +5,7 @@
 ; f2 for buffer revert
 (global-set-key [(f2)] 'revert-buffer)
 ;Makes f4 key go back in buffer list, C-f4 kills buffer
-(global-set-key [(f4)] `projectile-kill-buffers)
+(global-set-key [(f4)] `delete-frame)
 (global-set-key [(control f4)] (lambda () (interactive) (kill-buffer (current-buffer))))
 
 ;;F5 is unboundfor org-mode stuff
@@ -46,6 +46,8 @@
 ;;******** Helm ********
 (global-set-key "\M-y" 'helm-show-kill-ring)
 (global-set-key "\M-x" 'helm-M-x)
+(global-set-key "\C-x\C-f" 'helm-for-files)
+(global-set-key "\C-s" 'helm-multi-swoop-projectile)
 
 ;;******** projectile ********
 (global-set-key [(control tab)] 'helm-projectile)
